@@ -15,7 +15,7 @@ module.exports = function(session){
 		options = options || {};
 		Store.call(this, options);
 		this.prefix = null || options.prefix ? options.prefix : 'sess';			
-		this.client = options.client || new require('mysql').createConnection({host: options.host, database: options.database, user: options.user, password: options.password});
+		this.client = options.client || new require('mysql').createConnection({host: options.host, database: options.database, user: options.user, password: options.pass});
 		
 		if (this.client){
 			this.client.connect(function(err){
