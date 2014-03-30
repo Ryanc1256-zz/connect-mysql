@@ -7,43 +7,68 @@
 var oneDay = 86400;
 
 module.exports = function(session){
-	var Store = session.Store;
+	var Store = session.Store;	
 
-	
 
 	function mysqlStore(options){
 		var self = this;
 		options = options || {};
 		Store.call(this, options);
-		this.prefix = null || options.prefix ? 'sess:' : options.prefix;			
-		this.client = options.client || new require('mysql').createConnection({host: options.host, user: options.user, password: options.password});
+		this.prefix = null || options.prefix ? options.prefix : 'sess';			
+		this.client = options.client || new require('mysql').createConnection({host: options.host, database: options.database, user: options.user, password: options.password});
 		
 		if (this.client){
-			this.client.connect();
+			this.client.connect(function(err){
+				self.client.emit('connection');
+			});
 		}
 
-		this.table = options.table ? 'sessions' : options.table;
+		this.table = options.table ? options.table : 'sessions';
 
 		if ( this.table ) {
-
+			self.testConnection();	
 		}
 		self.client.on('error', function(){self.emit('disconnect')});
-		self.client.on('connection', function(err, value){console.log(err); self.emit('connect')});
+		self.client.on('connection', function(err, value){self.emit('connect')});
 	};
+
+
+	/*
+	* This is to test if the table exists
+	* @API: public
+	*/
+
+	mysqlStore.prototype.testConnection = function(){
+		this.client.query("SELECT sID FROM " + this.table, function(err, result){
+			if (err && err.errno === 1146) {
+				console.error('TABLE DOESN\'t Exists -> please create it... \n');
+			} else if (err) {
+				console.error(err);
+			}
+		});
+	}
 
 	mysqlStore.prototype.__proto__ = Store.prototype;
 
+	/*
+	* @param: fn {function} callback
+	* @param: sid {string} cookie string
+	* @API: public
+	*/
+
 	mysqlStore.prototype.get = function(sid, fn){
-		console.log(sid);
 		sid = this.prefix + sid;
-		this.client('session', function(err, data){
+		this.client.query('SELECT data FROM ' + this.table + ' WHERE sid = ? LIMIT 1', [sid], function(err, data){
 			if (err){
-				return fn(err);w
+				return fn(err);
 			}
-			if (!data){return fn()}
+			if (!data || data.length < 1){
+				return fn()
+			}
+
 			var result;
 			try {
-				result = JSON.parse(data);
+				result = JSON.parse(data[0].data);
 			} catch (e){
 				return fn(e);
 			}
@@ -51,7 +76,15 @@ module.exports = function(session){
 		});
 	};
 
+	/*
+	* @param: fn {function} callback
+	* @param: sid {string} cookie string
+	* @param: sess {object} session object
+	* @API: public
+	*/
+
 	mysqlStore.prototype.set = function(sid, sess, fn){
+		var self = this;
 		sid = this.prefix + sid;
 		try {
 			var maxAge = sess.cookie.maxAge,
@@ -59,16 +92,37 @@ module.exports = function(session){
 				sess = JSON.stringify(sess);
 
 			ttl = ttl || ('number' == typeof maxAge ? maxAge / 1000 | 0 : oneDay);
+			this.client.query('SELECT sID FROM ' + this.table, function(err, value){
+				if (!err && value && value.length > 0){
+					self.client.query("UPDATE " + self.table + ' SET data = ? WHERE sid=?', [sess, sid], function(err){
+						if (err) {console.error(err)};
+						fn && fn.apply(this, arguments);
+					});
+				} else if (!err && value && value.length == 0){
+					self.client.query('INSERT INTO ' + self.table + ' (sID, data) VALUES (?, ?) ', [sid, sess], function(err){
+						if (err){console.error(err)}
+						fn && fn.apply(this, arguments)
+					});
+				}
 
-			//this.
+			});
 		} catch (e){
 			fn && fn(e);
 		}
 	};
 
+	/*
+	* @param: fn {function} callback
+	* @param: sid {string} cookie string
+	* @API: public
+	*/
+
 	mysqlStore.prototype.destroy = function(sid, fn){
 		sid = this.prefix + sid;
-		this.client.del(sid, fn);
+		this.client.query("DELETE sID, data FROM " + this.table + ' WHERE sID = ?', [sID], function(err){
+			if (err) {console.error(err)};
+			fn();
+		});
 	};
 
 	return mysqlStore;
