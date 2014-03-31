@@ -38,7 +38,7 @@ module.exports = function(session){
 	* @API: public
 	*/
 
-	mysqlStore.prototype.testConnection = function(){
+	mysqlStore.prototype.testConnection = function(){		
 		this.client.query("SELECT sID FROM " + this.table, function(err, result){
 			if (err && err.errno === 1146) {
 				console.error('TABLE DOESN\'t Exists -> please create it... \n');
@@ -73,6 +73,7 @@ module.exports = function(session){
 				return fn(e);
 			}
 			return fn(null, result);
+			//this.client.disconnect();
 		});
 	};
 
@@ -83,7 +84,7 @@ module.exports = function(session){
 	* @API: public
 	*/
 
-	mysqlStore.prototype.set = function(sid, sess, fn){
+	mysqlStore.prototype.set = function(sid, sess, fn){		
 		var self = this;
 		sid = this.prefix + sid;
 		try {
@@ -92,13 +93,14 @@ module.exports = function(session){
 				sess = JSON.stringify(sess);
 
 			ttl = ttl || ('number' == typeof maxAge ? maxAge / 1000 | 0 : oneDay);
-			this.client.query('SELECT sID FROM ' + this.table, function(err, value){
+			//this.client.connect();
+			this.client.query('SELECT sID FROM ' + this.table + ' WHERE sID = ?', [sid], function(err, value){
 				if (!err && value && value.length > 0){
 					self.client.query("UPDATE " + self.table + ' SET data = ? WHERE sid=?', [sess, sid], function(err){
 						if (err) {console.error(err)};
 						fn && fn.apply(this, arguments);
 					});
-				} else if (!err && value && value.length == 0){
+				} else if (!err && value){
 					self.client.query('INSERT INTO ' + self.table + ' (sID, data) VALUES (?, ?) ', [sid, sess], function(err){
 						if (err){console.error(err)}
 						fn && fn.apply(this, arguments)
@@ -117,8 +119,9 @@ module.exports = function(session){
 	* @API: public
 	*/
 
-	mysqlStore.prototype.destroy = function(sid, fn){
+	mysqlStore.prototype.destroy = function(sid, fn){		
 		sid = this.prefix + sid;
+		//this.client.connect();
 		this.client.query("DELETE sID, data FROM " + this.table + ' WHERE sID = ?', [sID], function(err){
 			if (err) {console.error(err)};
 			fn();
