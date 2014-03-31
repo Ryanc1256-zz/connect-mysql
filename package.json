@@ -1,5 +1,5 @@
 {
-	"name": "connect-mysql",
+	"name": "express-mysql",
 	"version": "0.0.1",
 	"author": "Ryan Clough <ryanc1256@gmail.com>",
 	"description": "mysql session store for Connect",	
