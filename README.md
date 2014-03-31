@@ -1,6 +1,6 @@
 Connect-Mysql
 =============
-\
+
 Mysql session store for Connect,
 Pretty much the same as connect-redis, except much slower.
 <br />
