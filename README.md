@@ -1,7 +1,6 @@
 Connect-Mysql
 =============
-============
-
+\
 Mysql session store for Connect,
 Pretty much the same as connect-redis, except much slower.
 <br />
@@ -9,7 +8,7 @@ Pretty much the same as connect-redis, except much slower.
 ###I suggest using redis as it's alot faster and the sessions can time out...
 
 
-[connect-redis]("https://github.com/visionmedia/connect-redis")
+[connect-redis](https://github.com/visionmedia/connect-redis)
 
 
 ============
