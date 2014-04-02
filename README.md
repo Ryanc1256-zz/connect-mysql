@@ -2,10 +2,12 @@ Connect-Mysql
 =============
 
 Mysql session store for Connect,
-Pretty much the same as connect-redis, except much slower.
+Pretty much the same as connect-redis, except slower.
 <br />
 
-###I suggest using redis as it's alot faster and the sessions can time out...
+###I suggest using redis as it's alot faster.
+
+Only use this if you cant install redis or mongodb and you have mysql installed, of if you just want to try it out :)
 
 
 [connect-redis](https://github.com/visionmedia/connect-redis)
@@ -24,3 +26,7 @@ Pretty much the same as connect-redis, except much slower.
 </ul>
 
 ####this is only for express 4.x.x
+
+
+
+**Creator:** Ryan Clough 100%
