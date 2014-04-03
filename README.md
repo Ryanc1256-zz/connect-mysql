@@ -26,7 +26,7 @@ Only use this if you cant install redis or mongodb and you have mysql installed,
 </ul>
 
 ####table structure
-sID = INT (16) {no default's and no auto increment..}
+sID = INT (16) {no default's and no auto increment..} <br />
 data = TEXT {string}
 
 
