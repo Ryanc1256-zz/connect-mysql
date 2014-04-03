@@ -28,5 +28,9 @@ Only use this if you cant install redis or mongodb and you have mysql installed,
 ####this is only for express 4.x.x
 
 
+=============
+
+If you find an issue, please file a error in the issues [here](https://github.com/Ryanc1256/connect-mysql/issues)
+
 
 **Creator:** Ryan Clough 100%
