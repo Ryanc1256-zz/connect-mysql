@@ -25,6 +25,11 @@ Only use this if you cant install redis or mongodb and you have mysql installed,
 	<li> prefix: the prefix you will use for the id of the sessions. </li>
 </ul>
 
+####table structure
+sID = INT (16) {no default's and no auto increment..}
+data = TEXT {string}
+
+
 ####this is only for express 4.x.x
 
 
